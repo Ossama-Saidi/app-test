@@ -1,0 +1,39 @@
+# 📁 Dépendances et builds
+node_modules/
+dist/
+.next/
+out/
+build/
+
+# ⚙️ Fichiers d'environnement et secrets
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# 🛠️ Fichiers système et caches
+.DS_Store
+Thumbs.db
+.nyc_output
+coverage/
+.vscode/
+.idea/
+.eslintcache
+.turbo/
+
+# 📝 Logs et erreurs
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# 🚀 Next.js export statique
+.next/
+out/
+
+# 🚀 NestJS compilation et caches
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+.cache/

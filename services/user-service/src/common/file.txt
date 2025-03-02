@@ -1,0 +1,7 @@
+│   ├── common/              # Dossier commun (shared utilities)
+│   │   ├── constants/       # Constantes globales
+│   │   │   └── roles.ts
+│   │   ├── decorators/      # Décorateurs personnalisés (e.g., AuthGuard)
+│   │   ├── exceptions/      # Gestion des exceptions globales
+│   │   └── filters/         # Filtres pour les erreurs HTTP
+│   │
