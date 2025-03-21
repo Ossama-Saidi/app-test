@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your Prisma schema file, learn more about it at: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -14,16 +10,24 @@ datasource db {
 }
 
 model Utilisateur {
-  id         Int         @id @default(autoincrement())
-  nom        String
-  prenom     String
-  password   String?
-  email      String      @unique
-  telephone  String
-  badge      Boolean     @default(false)
-  role       Role
-  etudiant   Etudiant?   @relation("UtilisateurEtudiant")
-  professeur Professeur? @relation("UtilisateurProfesseur")
+  id            Int         @id @default(autoincrement())
+  nom           String
+  prenom        String
+  telephone     String
+  email         String      @unique
+  password      String
+  badge         Boolean     @default(false)
+  role          Role
+  status        AccountStatus @default(enabled)  // Add this line
+  bio           String?
+  profilePhoto  String?
+  bannerPhoto   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  etudiant      Etudiant?   @relation("UtilisateurEtudiant")
+  professeur    Professeur? @relation("UtilisateurProfesseur")
+  friendshipsAsSender   Friendship[] @relation("FriendshipSender")
+  friendshipsAsReceiver Friendship[] @relation("FriendshipReceiver")
 }
 
 model Etudiant {
@@ -59,4 +63,27 @@ enum Role {
   ETUDIANT
   PROFESSEUR
   ADMINISTRATEUR
+}
+
+model Friendship {
+  id         Int               @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     FriendshipStatus
+  sender     Utilisateur       @relation("FriendshipSender", fields: [senderId], references: [id])
+  receiver   Utilisateur       @relation("FriendshipReceiver", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId]) // Ensure unique relationship between sender and receiver
+}
+
+enum FriendshipStatus {
+  pending
+  accepted
+  blocked
+  rejected
+}
+
+enum AccountStatus {
+  enabled
+  disabled
 }
