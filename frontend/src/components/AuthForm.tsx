@@ -1,4 +1,3 @@
-// src/components/AuthForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -15,7 +14,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { setAuthToken } from '@/utils/authUtils'; // Import the utility
 
 export default function AuthForm() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function AuthForm() {
     const formData = new FormData(event.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    // Validation côté client pour l'inscription
+    // Client-side validation for registration
     if (isRegister) {
       const password = data.password as string;
       const confirmPassword = data.confirmPassword as string;
@@ -41,20 +41,21 @@ export default function AuthForm() {
         return;
       }
     }
-    // Préparer les données à envoyer au serveur
+
+    // Prepare payload for API request
     const payload = {
       nom: data.nom,
       prenom: data.prenom,
       telephone: data.telephone,
       email: data.email,
       password: data.password,
-      role: isRegister ? role : undefined, // Envoyer le rôle uniquement lors de l'inscription
+      role: isRegister ? role : undefined,
     };
-    
+
     try {
       const endpoint = isRegister
-        ? 'http://localhost:3001/auth/register' // Endpoint d'inscription
-        : 'http://localhost:3001/auth/login'; // Endpoint de connexion
+        ? 'http://localhost:3001/auth/register' // Registration endpoint
+        : 'http://localhost:3001/auth/login'; // Login endpoint
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -64,14 +65,27 @@ export default function AuthForm() {
         body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        toast.success(isRegister ? 'Inscription réussie !' : 'Connexion réussie !');
-        router.push('/'); // Rediriger vers la page Home
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        toast.error(errorData.message || 'Une erreur est survenue.');
+        throw new Error(errorData.message || 'Failed to fetch');
       }
+
+      const responseData = await response.json();
+
+      // Store the authentication token using the utility function
+      if (responseData.token) {
+        setAuthToken(responseData.token);
+      } else {
+        console.error('No token received from server');
+        toast.error('Problème d\'authentification. Veuillez réessayer.');
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success(isRegister ? 'Inscription réussie !' : 'Connexion réussie !');
+      router.push('/profil'); // Redirect to profile page
     } catch (error) {
+      console.error('Authentication error:', error);
       toast.error('Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
@@ -124,8 +138,8 @@ export default function AuthForm() {
           </div>
         </form>
       </TabsContent>
-      <TabsContent value="register">
-        <form className="space-y-6" onSubmit={(e) => handleSubmit(e, true)}>
+      <TabsContent value="register" className="mb-14">
+        <form className="space-y-6 pb-14" onSubmit={(e) => handleSubmit(e, true)}>
           <div>
             <Label htmlFor="name">Nom complet</Label>
             <Input
